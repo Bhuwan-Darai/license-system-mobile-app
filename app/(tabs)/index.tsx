@@ -1,98 +1,265 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/context/auth";
+import { BrandColors } from "@/constants/theme";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function HomeDashboard() {
+  const router = useRouter();
+  const { user } = useAuth();
 
-export default function HomeScreen() {
+  const notices = [
+    { id: 1, title: "Written exam pattern", tag: "Notice", desc: "25 MCQs · 30 minutes · 60% to pass, per the official DoTM question bank." },
+    { id: 2, title: "License validity", tag: "Notice", desc: "Category A & B cards are valid 5 years; renew before expiry to avoid retaking exams." },
+    { id: 3, title: "Smart card rollout", tag: "Notice", desc: "Biometric and smart card printing updates are published per Transport Office." },
+  ];
+
+  const quickActions = [
+    { label: "Practice MCQ", icon: "document-text-outline", emoji: "📝", route: "/(tabs)/practice" },
+    { label: "Ishihara Test", icon: "color-palette-outline", emoji: "🎨", route: "/more/ishihara" },
+    { label: "Traffic Signs", icon: "warning-outline", emoji: "🔺", route: "/more/signs" },
+    { label: "License Status", icon: "card-outline", emoji: "🎫", route: "/more/status" },
+  ];
+
+  const handleAction = (route: string) => {
+    router.push(route as any);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      {/* Top Header */}
+      <View style={styles.topHeader}>
+        <View>
+          <Text style={styles.greeting}>नमस्ते 👋</Text>
+          <Text style={styles.userName}>
+            {user?.isGuest ? "Guest User" : user?.phone || "Sujata Rai"}
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7}>
+          <Ionicons name="notifications-outline" size={20} color={BrandColors.ink} />
+        </TouchableOpacity>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      {/* Progress Card */}
+      <View style={styles.scoreCard}>
+        <Text style={styles.scoreHeader}>CATEGORY B · LAST SCORE</Text>
+        <View style={styles.scoreRow}>
+          <Text style={styles.scoreValue}>21/25</Text>
+          <Text style={styles.scorePercentage}>84% · Passed ✓</Text>
+        </View>
+      </View>
+
+      {/* Quick Action Grid */}
+      <View style={styles.gridContainer}>
+        {quickActions.map((action, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.gridCard}
+            onPress={() => handleAction(action.route)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.cardEmoji}>{action.emoji}</Text>
+            <Text style={styles.cardLabel}>{action.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* News Section Header */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Latest news</Text>
+        <TouchableOpacity onPress={() => router.push("/(tabs)/news")} activeOpacity={0.7}>
+          <Text style={styles.seeAllText}>See all</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Horizontal Notice Carousel */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.carouselContainer}
+      >
+        {notices.map((notice) => (
+          <TouchableOpacity
+            key={notice.id}
+            style={styles.noticeCard}
+            onPress={() => router.push("/(tabs)/news")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.tagContainer}>
+              <Text style={styles.tagText}>{notice.tag}</Text>
+            </View>
+            <Text style={styles.noticeTitle}>{notice.title}</Text>
+            <Text style={styles.noticeDesc} numberOfLines={2}>
+              {notice.desc}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: BrandColors.paper,
   },
-  stepContainer: {
+  scrollContent: {
+    paddingHorizontal: 18,
+    paddingTop: 60,
+    paddingBottom: 32,
+  },
+  topHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  greeting: {
+    fontSize: 12,
+    color: BrandColors.inkSoft,
+    fontWeight: "600",
+  },
+  userName: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: BrandColors.ink,
+  },
+  iconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: BrandColors.paperDim,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: BrandColors.line,
+  },
+  scoreCard: {
+    backgroundColor: BrandColors.himalaya,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 20,
+    shadowColor: BrandColors.himalaya,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  scoreHeader: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#ffffff",
+    opacity: 0.85,
+    letterSpacing: 0.5,
+  },
+  scoreRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
     gap: 8,
+    marginTop: 6,
+  },
+  scoreValue: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#ffffff",
+  },
+  scorePercentage: {
+    fontSize: 12.5,
+    color: "#ffffff",
+    opacity: 0.9,
+    fontWeight: "600",
+  },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 24,
+  },
+  gridCard: {
+    width: "48%",
+    aspectRatio: 1.3,
+    backgroundColor: "#ffffff",
+    borderWidth: 1.5,
+    borderColor: BrandColors.line,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  cardEmoji: {
+    fontSize: 24,
+    marginBottom: 6,
+  },
+  cardLabel: {
+    fontSize: 12.5,
+    fontWeight: "700",
+    color: BrandColors.ink,
+    textAlign: "center",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 14.5,
+    fontWeight: "800",
+    color: BrandColors.ink,
+  },
+  seeAllText: {
+    fontSize: 12,
+    color: BrandColors.himalaya,
+    fontWeight: "700",
+  },
+  carouselContainer: {
+    gap: 10,
+    paddingBottom: 4,
+  },
+  noticeCard: {
+    width: 170,
+    backgroundColor: "#ffffff",
+    borderWidth: 1.5,
+    borderColor: BrandColors.line,
+    borderRadius: 16,
+    padding: 14,
+  },
+  tagContainer: {
+    alignSelf: "flex-start",
+    backgroundColor: BrandColors.paperDim,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  tagText: {
+    fontSize: 9.5,
+    fontWeight: "800",
+    color: BrandColors.inkSoft,
+    textTransform: "uppercase",
+  },
+  noticeTitle: {
+    fontSize: 12.5,
+    fontWeight: "700",
+    color: BrandColors.ink,
+    marginBottom: 4,
+  },
+  noticeDesc: {
+    fontSize: 11.5,
+    color: BrandColors.inkSoft,
+    lineHeight: 15,
   },
 });
