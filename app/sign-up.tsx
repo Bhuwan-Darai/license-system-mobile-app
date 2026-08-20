@@ -1,4 +1,7 @@
+import { useAuth } from "@/context/auth";
 import { Ionicons } from "@expo/vector-icons";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -12,8 +15,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { useAuth } from "@/context/auth";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,13 +22,18 @@ export default function SignUpScreen() {
   const router = useRouter();
   const { signUp } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
+  const [data, setData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
   const [errors, setErrors] = useState<{
+    name?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
@@ -36,22 +42,26 @@ export default function SignUpScreen() {
 
   const validate = () => {
     const nextErrors: typeof errors = {};
-    
-    if (!email.trim()) {
+
+    if (!data.name.trim()) {
+      nextErrors.name = "Name is required";
+    }
+
+    if (!data.email.trim()) {
       nextErrors.email = "Email is required";
-    } else if (!EMAIL_REGEX.test(email.trim())) {
+    } else if (!EMAIL_REGEX.test(data.email.trim())) {
       nextErrors.email = "Enter a valid email address";
     }
-    
-    if (!password) {
+
+    if (!data.password) {
       nextErrors.password = "Password is required";
-    } else if (password.length < 6) {
+    } else if (data.password.length < 6) {
       nextErrors.password = "Password must be at least 6 characters";
     }
-    
-    if (!confirmPassword) {
+
+    if (!data.confirmPassword) {
       nextErrors.confirmPassword = "Confirm your password";
-    } else if (password !== confirmPassword) {
+    } else if (data.password !== data.confirmPassword) {
       nextErrors.confirmPassword = "Passwords do not match";
     }
 
@@ -59,17 +69,40 @@ export default function SignUpScreen() {
     return Object.keys(nextErrors).length === 0;
   };
 
+  const {
+    mutateAsync: register,
+    isPending: isRegistering
+  } = useMutation({
+    mutationFn: async (credentials: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
+      await signUp(credentials.name, credentials.email, credentials.password);
+    },
+  });
+
   const handleSignUp = async () => {
     if (!validate()) return;
     setIsSubmitting(true);
     try {
-      await signUp(email, password);
+      const payload = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      };
+      console.log("Sign-up payload:", payload);
+      await register({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
       // SignUp in context changes status to 'otp-pending'
       router.replace("/verify-otp");
     } catch (err: any) {
       Alert.alert(
         "Registration failed",
-        err.message || "Something went wrong. Please try again."
+        err.message || "Something went wrong. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -99,6 +132,37 @@ export default function SignUpScreen() {
           <Text style={styles.subtitle}>Sign up to get started</Text>
         </View>
 
+        {/* User Name field */}
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>User Name</Text>
+          <View style={[styles.inputWrapper, errors.name && styles.inputError]}>
+            <Ionicons
+              name="mail-outline"
+              size={20}
+              color="#8a8a8e"
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="John Doe"
+              placeholderTextColor="#a0a0a5"
+              value={data.name}
+              onChangeText={(text) => {
+                setData((prev) => ({ ...prev, name: text }));
+                if (errors.name) setErrors((e) => ({ ...e, name: undefined }));
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="default"
+              textContentType="username"
+              returnKeyType="next"
+            />
+          </View>
+          {errors.name ? (
+            <Text style={styles.errorText}>{errors.name}</Text>
+          ) : null}
+        </View>
+
         {/* Email field */}
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Email</Text>
@@ -115,9 +179,9 @@ export default function SignUpScreen() {
               style={styles.input}
               placeholder="you@example.com"
               placeholderTextColor="#a0a0a5"
-              value={email}
+              value={data.email}
               onChangeText={(text) => {
-                setEmail(text);
+                setData((prev) => ({ ...prev, email: text }));
                 if (errors.email)
                   setErrors((e) => ({ ...e, email: undefined }));
               }}
@@ -149,9 +213,9 @@ export default function SignUpScreen() {
               style={styles.input}
               placeholder="Min. 6 characters"
               placeholderTextColor="#a0a0a5"
-              value={password}
+              value={data.password}
               onChangeText={(text) => {
-                setPassword(text);
+                setData((prev) => ({ ...prev, password: text }));
                 if (errors.password)
                   setErrors((e) => ({ ...e, password: undefined }));
               }}
@@ -194,9 +258,9 @@ export default function SignUpScreen() {
               style={styles.input}
               placeholder="Confirm your password"
               placeholderTextColor="#a0a0a5"
-              value={confirmPassword}
+              value={data.confirmPassword}
               onChangeText={(text) => {
-                setConfirmPassword(text);
+                setData((prev) => ({ ...prev, confirmPassword: text }));
                 if (errors.confirmPassword)
                   setErrors((e) => ({ ...e, confirmPassword: undefined }));
               }}
@@ -208,6 +272,7 @@ export default function SignUpScreen() {
             <TouchableOpacity
               onPress={() => setShowConfirmPassword((s) => !s)}
               hitSlop={8}
+              disabled={isRegistering}
             >
               <Ionicons
                 name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
@@ -223,12 +288,12 @@ export default function SignUpScreen() {
 
         {/* Submit button */}
         <TouchableOpacity
-          style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
+          style={[styles.submitButton, isRegistering && styles.buttonDisabled]}
           onPress={handleSignUp}
-          disabled={isSubmitting}
+          disabled={isRegistering}
           activeOpacity={0.85}
         >
-          {isSubmitting ? (
+          {isRegistering ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.submitButtonText}>Sign Up</Text>

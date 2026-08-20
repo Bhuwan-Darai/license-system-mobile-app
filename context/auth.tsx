@@ -1,6 +1,14 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import api from "@/axios";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { Alert } from "react-native";
 
-export type AuthStatus = "unauthenticated" | "otp-pending" | "authenticated" | "guest";
+export type AuthStatus =
+  | "unauthenticated"
+  | "otp-pending"
+  | "authenticated"
+  | "guest";
 
 interface User {
   phone?: string;
@@ -17,6 +25,14 @@ interface AuthContextType {
   resendOtp: () => Promise<void>;
   continueAsGuest: () => void;
   signOut: () => Promise<void>;
+  signUp: (name: string, email: string, password: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+}
+
+interface SignupCredentials {
+  name: string;
+  email: string;
+  password: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -34,6 +50,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tempPhone, setTempPhone] = useState<string | null>(null);
+
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const {
+    data: userInfo = [],
+    isLoading: getUserLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+
+      try {
+        const response = await api.get("/auth/me");
+        return response.data.data;
+      } catch (error) {
+        // localStorage.removeItem("token");
+        // localStorage.removeItem("user");
+        return null;
+      }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    // enabled: !!localStorage.getItem("token"),
+  });
 
   // Simulate loading session from local storage on mount
   useEffect(() => {
@@ -56,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Simulate API call to send OTP code
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       const cleanedPhone = phone.trim();
       if (cleanedPhone.length === 10) {
         setTempPhone(cleanedPhone);
@@ -74,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Simulate API call to verify OTP
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       // Mock validation: accept "1234" as the valid OTP code for testing
       if (otp === "1234") {
         setUser({ phone: tempPhone || "9800000000", isGuest: false });
@@ -117,6 +159,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signUp = async (name: string, email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const payload = {
+        Username: name,
+        Email: email,
+        Password: password,
+      };
+      console.log("Sign-up payload in context:", payload);
+      await api.post("/auth/register", payload);
+    } catch(error){
+      setIsLoading(false)
+      console.log("error", error);
+    }finally {
+      setIsLoading(false);
+    }
+  };
+
+  const forgotPassword = async (email: string) => {
+    setIsLoading(true);
+    try {
+      // Simulate API call to initiate forgot password process
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log(`Password reset OTP sent to ${email}`);
+      // You might want to set some state here to indicate that the OTP has been sent
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -129,6 +201,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resendOtp,
         continueAsGuest,
         signOut,
+        signUp,
+        forgotPassword,
       }}
     >
       {children}
