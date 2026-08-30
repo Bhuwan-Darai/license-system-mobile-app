@@ -16,10 +16,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import useEmailStore from "@/store/store";
 
 export default function VerifyOtpScreen() {
   const router = useRouter();
   const { verifyOtp, resendOtp } = useAuth();
+  const {email, setEmail} = useEmailStore();
 
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,6 +60,7 @@ export default function VerifyOtpScreen() {
 
   const handleVerify = async () => {
     const otpCode = otp.join("");
+    setEmail(email)
     if (otpCode.length < 6) {
       Alert.alert(
         "Verification failed",
@@ -66,13 +69,15 @@ export default function VerifyOtpScreen() {
       return;
     }
 
+    const credentials = {
+      otpCode,
+      email
+    }
+
+
     setIsSubmitting(true);
     try {
-      const success = await verifyOtp(otpCode);
-      if (success) {
-        // Redirection should happen based on the updated auth state or directly
-        router.replace("/(tabs)");
-      }
+      await verifyOtp(credentials);
     } catch (err: any) {
       Alert.alert(
         "Verification failed",
@@ -86,7 +91,7 @@ export default function VerifyOtpScreen() {
   const handleResend = async () => {
     setIsResending(true);
     try {
-      await resendOtp();
+      await resendOtp(email);
       Alert.alert("Code resent", "A new OTP code has been sent to your email.");
     } catch {
       Alert.alert(

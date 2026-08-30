@@ -15,12 +15,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import useEmailStore from "@/store/store";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignUpScreen() {
   const router = useRouter();
   const { signUp } = useAuth();
+
+  const {setEmail,clearEmail} = useEmailStore();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -39,6 +42,7 @@ export default function SignUpScreen() {
     confirmPassword?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const validate = () => {
     const nextErrors: typeof errors = {};
@@ -69,43 +73,52 @@ export default function SignUpScreen() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const {
-    mutateAsync: register,
-    isPending: isRegistering
-  } = useMutation({
-    mutationFn: async (credentials: {
-      name: string;
-      email: string;
-      password: string;
-    }) => {
-      await signUp(credentials.name, credentials.email, credentials.password);
-    },
-  });
+  // const {
+  //   mutateAsync: register,
+  //   isPending: isRegistering
+  // } = useMutation({
+  //   mutationFn: async (credentials: {
+  //     name: string;
+  //     email: string;
+  //     password: string;
+  //   }) => {
+  //     await signUp(credentials.name, credentials.email, credentials.password);
+  //   }
+  // });
 
   const handleSignUp = async () => {
     if (!validate()) return;
-    setIsSubmitting(true);
+    setIsRegistering(true);
     try {
       const payload = {
         name: data.name,
         email: data.email,
         password: data.password,
       };
+      setEmail(payload.email);
       console.log("Sign-up payload:", payload);
-      await register({
-        name: data.name,
-        email: data.email,
-        password: data.password,
-      });
+    const res =  await signUp(
+        payload.name,
+        payload.email,
+        payload.password,
+      );
+
+    setIsRegistering(false);
+
+    console.log('res',res)
       // SignUp in context changes status to 'otp-pending'
       router.replace("/verify-otp");
+
     } catch (err: any) {
+      setIsRegistering(false);
+      clearEmail();
       Alert.alert(
         "Registration failed",
         err.message || "Something went wrong. Please try again.",
       );
+      throw err;
     } finally {
-      setIsSubmitting(false);
+      setIsRegistering(false);
     }
   };
 
@@ -272,7 +285,7 @@ export default function SignUpScreen() {
             <TouchableOpacity
               onPress={() => setShowConfirmPassword((s) => !s)}
               hitSlop={8}
-              disabled={isRegistering}
+              // disabled={isRegistering}
             >
               <Ionicons
                 name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}

@@ -7,23 +7,23 @@ import { BrandColors } from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 
 export default function TabLayout() {
-  const { status, isLoading } = useAuth();
+  const { user, status, isLoading } = useAuth();
 
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: BrandColors.paper }}>
-        <ActivityIndicator size="large" color={BrandColors.crimson} />
-      </View>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: BrandColors.paper }}>
+  //       <ActivityIndicator size="large" color={BrandColors.crimson} />
+  //     </View>
+  //   );
+  // }
 
   // Allow 'authenticated' or 'guest' users to access the tabs.
   // Redirect 'unauthenticated' or 'otp-pending' to root / login.
-  if (status === 'unauthenticated') {
+  if (!user) {
     return <Redirect href="/login" />;
   }
 
-  if (status === 'otp-pending') {
+  if (!user) {
     return <Redirect href="/login" />; // Send to login which handles OTP verification
   }
 

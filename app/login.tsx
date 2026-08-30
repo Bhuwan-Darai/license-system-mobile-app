@@ -15,12 +15,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import api from "@/axios";
+import useEmailStore from "@/store/store";
 
 type LoginMethod = "phone" | "email";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { sendOtp, verifyOtp, continueAsGuest, status, tempPhone } = useAuth();
+  const { sendOtp, verifyOtp, continueAsGuest, status, tempPhone, login, loginLoading } = useAuth();
 
   const [language, setLanguage] = useState<"EN" | "NP">("EN");
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("email");
@@ -34,10 +36,12 @@ export default function LoginScreen() {
   const [countdown, setCountdown] = useState(30);
 
   // Email / Password
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const {email ,setEmail} = useEmailStore();
 
   const otpRefs = useRef<(TextInput | null)[]>([]);
 
@@ -118,6 +122,8 @@ export default function LoginScreen() {
       return;
     }
 
+    setEmail(email);
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
@@ -130,13 +136,12 @@ export default function LoginScreen() {
       return;
     }
 
-    setIsLoggingIn(true);
     try {
       // TODO: Replace with your actual email/password login function from useAuth
       // Example: await loginWithEmail(email.trim(), password);
       // For now we just simulate success:
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      router.replace("/(tabs)");
+    const res =  await login({email,password});
+    console.log("res",res);
     } catch (err: any) {
       Alert.alert(
         "Error",
@@ -145,8 +150,6 @@ export default function LoginScreen() {
             ? "Invalid email or password"
             : "अवैध इमेल वा पासवर्ड"),
       );
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -349,7 +352,7 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={[
                 styles.continueBtn,
-                isEmailContinueDisabled && styles.btnDisabled,
+                loginLoading && styles.btnDisabled,
               ]}
               onPress={handleEmailLogin}
               disabled={isEmailContinueDisabled}
