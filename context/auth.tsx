@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await refetch();
         setStatus("unauthenticated");
       } catch (e) {
         console.error("Failed to load auth state", e);

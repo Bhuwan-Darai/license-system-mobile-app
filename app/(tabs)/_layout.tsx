@@ -35,11 +35,11 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: '#ffffff',
-          borderTopWidth: 1,
+          // borderTopWidth: 1,
           borderTopColor: BrandColors.line,
-          height: 64,
-          paddingBottom: 8,
-          paddingTop: 8,
+          // height: 64,
+          // paddingBottom: 8,
+          // paddingTop: 8,
         },
         tabBarLabelStyle: {
           fontSize: 10,
