@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -8,9 +8,14 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { BrandColors } from "@/constants/theme";
+import {useAuth} from "@/context/auth";
 
 export default function PracticeScreen() {
   const router = useRouter();
+
+  const {user} = useAuth();
+
+  console.log("user", user);
 
   const categories = [
     { code: "A", name: "Motorcycle / Scooter", age: "16+", color: BrandColors.himalaya },
