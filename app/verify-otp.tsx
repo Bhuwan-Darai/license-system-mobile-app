@@ -1,4 +1,6 @@
+import { useAuth } from "@/context/auth";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -14,23 +16,23 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { useAuth } from "@/context/auth";
+import useEmailStore from "@/store/store";
 
 export default function VerifyOtpScreen() {
   const router = useRouter();
-  const { verifyOtp, resendOtp, tempEmail } = useAuth();
+  const { verifyOtp, resendOtp } = useAuth();
+  const {email, setEmail} = useEmailStore();
 
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  
+
   const inputs = useRef<(TextInput | null)[]>([]);
 
   const handleChangeText = (text: string, index: number) => {
     // Keep only last char if user inputs multiple
     const cleanedText = text.replace(/[^0-9]/g, "").slice(-1);
-    
+
     const newOtp = [...otp];
     newOtp[index] = cleanedText;
     setOtp(newOtp);
@@ -43,7 +45,7 @@ export default function VerifyOtpScreen() {
 
   const handleKeyPress = (
     e: NativeSyntheticEvent<TextInputKeyPressEventData>,
-    index: number
+    index: number,
   ) => {
     if (e.nativeEvent.key === "Backspace") {
       // If current input is empty, focus previous input and clear it
@@ -58,22 +60,28 @@ export default function VerifyOtpScreen() {
 
   const handleVerify = async () => {
     const otpCode = otp.join("");
+    setEmail(email)
     if (otpCode.length < 6) {
-      Alert.alert("Verification failed", "Please enter the complete 6-digit OTP code.");
+      Alert.alert(
+        "Verification failed",
+        "Please enter the complete 6-digit OTP code.",
+      );
       return;
     }
 
+    const credentials = {
+      otpCode,
+      email
+    }
+
+
     setIsSubmitting(true);
     try {
-      const success = await verifyOtp(otpCode);
-      if (success) {
-        // Redirection should happen based on the updated auth state or directly
-        router.replace("/(tabs)");
-      }
+      await verifyOtp(credentials);
     } catch (err: any) {
       Alert.alert(
         "Verification failed",
-        err.message || "Invalid OTP code. Please try again."
+        err.message || "Invalid OTP code. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -83,10 +91,13 @@ export default function VerifyOtpScreen() {
   const handleResend = async () => {
     setIsResending(true);
     try {
-      await resendOtp();
+      await resendOtp(email);
       Alert.alert("Code resent", "A new OTP code has been sent to your email.");
     } catch {
-      Alert.alert("Resend failed", "Could not resend OTP code. Please try again.");
+      Alert.alert(
+        "Resend failed",
+        "Could not resend OTP code. Please try again.",
+      );
     } finally {
       setIsResending(false);
     }
@@ -114,13 +125,18 @@ export default function VerifyOtpScreen() {
           <Text style={styles.title}>Enter OTP</Text>
           <Text style={styles.subtitle}>
             {"We've"} sent a 6-digit verification code to{" "}
-            <Text style={styles.emailText}>{tempEmail || "your email"}</Text>.
+            <Text style={styles.emailText}>{"your email"}</Text>.
           </Text>
-          
+
           <View style={styles.demoBanner}>
-            <Ionicons name="information-circle-outline" size={20} color="#4f6bed" />
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color="#4f6bed"
+            />
             <Text style={styles.demoBannerText}>
-              For testing, please use the code: <Text style={styles.boldText}>123456</Text>
+              For testing, please use the code:{" "}
+              <Text style={styles.boldText}>123456</Text>
             </Text>
           </View>
         </View>
@@ -203,8 +219,18 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   header: { marginBottom: 36 },
-  title: { fontSize: 28, fontWeight: "700", color: "#1a1a1e", marginBottom: 12 },
-  subtitle: { fontSize: 15, color: "#6b6b70", lineHeight: 22, marginBottom: 16 },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#1a1a1e",
+    marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: "#6b6b70",
+    lineHeight: 22,
+    marginBottom: 16,
+  },
   emailText: { color: "#1a1a1e", fontWeight: "600" },
   demoBanner: {
     flexDirection: "row",
@@ -249,7 +275,11 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.6 },
   submitButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  footerRow: { flexDirection: "row", justifyContent: "center", alignItems: "center" },
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   footerText: { fontSize: 14, color: "#6b6b70" },
   resendLink: { fontSize: 14, color: "#4f6bed", fontWeight: "700" },
 });
