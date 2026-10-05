@@ -3,7 +3,7 @@ import Constants from "expo-constants";
 const ENV = Constants.expoConfig?.extra?.env || "development";
 
 // Local backend
-const LOCAL_BACKEND_IP = "192.168.1.67";
+const LOCAL_BACKEND_IP = "172.16.10.15";
 const LOCAL_BACKEND_PORT = "3030";
 
 const LOCAL_BACKEND_URL = `http://${LOCAL_BACKEND_IP}:${LOCAL_BACKEND_PORT}`;

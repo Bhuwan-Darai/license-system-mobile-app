@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import { BrandColors } from "@/constants/theme";
+import { useQueryVehicleCategories } from "@/hooks/category/useCategoryQuery";
+import React, { useMemo, useState } from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -7,37 +10,56 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { BrandColors } from "@/constants/theme";
+
+export interface VehicleCategory {
+  ID: number;
+  VehicleCategoryID: string;
+  Title: string;
+  Description: string;
+  Image: string;
+  CreatedAt: string;
+  CreatedBy: string;
+  UpdatedAt: string;
+  UpdatedBy?: string | null;
+}
+
+type CategoryItem = {
+  id: string;
+  code: string;
+  name: string;
+  detail: string;
+};
 
 export default function CategoryScreen() {
   const [search, setSearch] = useState("");
-  const [expandedCode, setExpandedCode] = useState<string | null>("B");
+  const [expandedCode, setExpandedCode] = useState<string | null>(null);
 
-  const categories = [
-    { code: "A", name: "Motorcycle & Scooter", age: "16+", detail: "Fee ≈ NPR 1,500 · Valid 5 years · Requires written exam + trial test on motorcycle." },
-    { code: "B", name: "Car, Jeep & Van", age: "18+", detail: "Fee ≈ NPR 2,000 · Valid 5 years · Requires written exam + trial test on light car." },
-    { code: "C", name: "Tempo / Auto Rickshaw", age: "18+", detail: "Fee ≈ NPR 2,000 · Valid 5 years · Requires written exam + trial test." },
-    { code: "D", name: "Power Tiller / Tractor", age: "18+", detail: "Fee ≈ NPR 2,000 · Valid 5 years · Requires basic controls check." },
-    { code: "E", name: "Heavy Bus / Truck / Tipper", age: "21+", detail: "Fee ≈ NPR 3,000 · Valid 5 years · Requires Category B license held for 2+ years before applying." },
-    { code: "F", name: "Minibus / Mini Truck", age: "21+", detail: "Fee ≈ NPR 2,500 · Valid 5 years · Requires Category B held for 1+ years." },
-    { code: "K", name: "Scooter / Moped", age: "16+", detail: "Fee ≈ NPR 1,500 · Valid 5 years · Simplified trial layout." },
-  ];
+  const { categories, isLoading } = useQueryVehicleCategories();
 
-  const filteredCategories = categories.filter(
-    (c) =>
-      c.code.toLowerCase().includes(search.toLowerCase()) ||
-      c.name.toLowerCase().includes(search.toLowerCase())
-  );
+  /**
+   * Search categories
+   */
+  const filteredCategories = useMemo(() => {
+    const query = search.trim().toLowerCase();
 
-  const toggleExpand = (code: string) => {
-    setExpandedCode(expandedCode === code ? null : code);
+    if (!query) {
+      return categories;
+    }
+
+    return categories.filter((category: VehicleCategory) => {
+      return category.Title.toLowerCase().includes(query);
+    });
+  }, [categories, search]);
+
+  const toggleExpand = (id: string) => {
+    setExpandedCode((current) => (current === id ? null : id));
   };
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>License categories</Text>
+        <Text style={styles.title}>License Categories</Text>
       </View>
 
       {/* Search */}
@@ -51,39 +73,72 @@ export default function CategoryScreen() {
         />
       </View>
 
-      {/* List */}
-      <ScrollView contentContainerStyle={styles.listContent}>
-        {filteredCategories.map((item, index) => {
-          const isExpanded = expandedCode === item.code;
-          return (
-            <View key={index} style={styles.cardContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.card,
-                  isExpanded && styles.expandedCardBorder,
-                ]}
-                onPress={() => toggleExpand(item.code)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.badgeCircle}>
-                  <Text style={styles.badgeText}>{item.code}</Text>
-                </View>
-                <View style={styles.infoContainer}>
-                  <Text style={styles.cardName}>{item.name}</Text>
-                  <Text style={styles.cardAge}>Minimum age {item.age}</Text>
-                </View>
-                <Text style={styles.arrowText}>{isExpanded ? "▾" : "▸"}</Text>
-              </TouchableOpacity>
+      {/* Loading */}
+      {isLoading && (
+        <View style={styles.stateContainer}>
+          <Text style={styles.stateText}>Loading categories...</Text>
+        </View>
+      )}
 
-              {isExpanded && (
-                <View style={styles.detailContainer}>
-                  <Text style={styles.detailText}>{item.detail}</Text>
-                </View>
-              )}
-            </View>
-          );
-        })}
-      </ScrollView>
+      {/* Empty */}
+      {!isLoading && filteredCategories.length === 0 && (
+        <View style={styles.stateContainer}>
+          <Text style={styles.stateText}>No categories found.</Text>
+        </View>
+      )}
+
+      {/* List */}
+      {!isLoading && filteredCategories.length > 0 && (
+        <ScrollView
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {filteredCategories.map((item: VehicleCategory) => {
+            const isExpanded = expandedCode === item.VehicleCategoryID;
+
+            return (
+              <View key={item.VehicleCategoryID} style={styles.cardContainer}>
+                <TouchableOpacity
+                  style={[styles.card, isExpanded && styles.expandedCardBorder]}
+                  onPress={() => toggleExpand(item.VehicleCategoryID)}
+                  activeOpacity={0.8}
+                >
+                  {/* Vehicle Image */}
+                  <View style={styles.badgeCircle}>
+                    {item.Image ? (
+                      <Image
+                        source={{ uri: item.Image }}
+                        style={styles.vehicleImage}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <Text style={styles.badgeText}>
+                        {item.Title.charAt(0)}
+                      </Text>
+                    )}
+                  </View>
+
+                  {/* Information */}
+                  <View style={styles.infoContainer}>
+                    <Text style={styles.cardName} numberOfLines={2}>
+                      {item.Title}
+                    </Text>
+                  </View>
+
+                  {/* Arrow */}
+                  <Text style={styles.arrowText}>{isExpanded ? "▾" : "▸"}</Text>
+                </TouchableOpacity>
+
+                {isExpanded && item.Description && (
+                  <View style={styles.detailContainer}>
+                    <Text style={styles.detailText}>{item.Description}</Text>
+                  </View>
+                )}
+              </View>
+            );
+          })}
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -93,20 +148,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BrandColors.paper,
   },
+
   header: {
     paddingTop: 60,
     paddingHorizontal: 18,
     marginBottom: 12,
   },
+
   title: {
     fontSize: 18,
     fontWeight: "800",
     color: BrandColors.ink,
   },
+
   searchContainer: {
     paddingHorizontal: 18,
     marginBottom: 16,
   },
+
   searchField: {
     width: "100%",
     padding: 13,
@@ -118,14 +177,17 @@ const styles = StyleSheet.create({
     color: BrandColors.ink,
     fontWeight: "600",
   },
+
   listContent: {
     paddingHorizontal: 18,
     paddingBottom: 32,
     gap: 8,
   },
+
   cardContainer: {
     marginBottom: 4,
   },
+
   card: {
     flexDirection: "row",
     alignItems: "center",
@@ -136,43 +198,51 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 12,
   },
+
   expandedCardBorder: {
     borderColor: BrandColors.himalaya,
   },
+
   badgeCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 1.5,
     borderColor: BrandColors.crimson,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#ffffff",
+    overflow: "hidden",
   },
+
+  vehicleImage: {
+    width: 42,
+    height: 42,
+  },
+
   badgeText: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: "800",
     color: BrandColors.crimson,
   },
+
   infoContainer: {
     flex: 1,
   },
+
   cardName: {
     fontSize: 13.5,
     fontWeight: "800",
     color: BrandColors.ink,
     marginBottom: 2,
   },
-  cardAge: {
-    fontSize: 11.5,
-    color: BrandColors.inkSoft,
-    fontWeight: "600",
-  },
+
   arrowText: {
     fontSize: 16,
     color: BrandColors.inkSoft,
     fontWeight: "800",
   },
+
   detailContainer: {
     backgroundColor: BrandColors.paperDim,
     borderRadius: 12,
@@ -181,10 +251,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: BrandColors.line,
   },
+
   detailText: {
     fontSize: 12,
     color: BrandColors.inkSoft,
     lineHeight: 18,
+    fontWeight: "600",
+  },
+
+  stateContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+
+  stateText: {
+    fontSize: 14,
+    color: BrandColors.inkSoft,
     fontWeight: "600",
   },
 });

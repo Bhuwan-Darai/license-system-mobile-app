@@ -1,3 +1,6 @@
+import { BrandColors } from "@/constants/theme";
+import { useAuth } from "@/context/auth";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -6,11 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { BrandColors } from "@/constants/theme";
 
 export default function MoreScreen() {
   const router = useRouter();
+  const { signOut } = useAuth();
 
   const menuTiles = [
     { label: "Blog / Guide", emoji: "📖", route: "/more/blog" },
@@ -25,8 +27,15 @@ export default function MoreScreen() {
     router.push(route as any);
   };
 
+  const handlePressLogout = async () => {
+    await signOut();
+  };
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>More</Text>
@@ -51,7 +60,7 @@ export default function MoreScreen() {
       <View style={styles.section}>
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() => router.push("/more/logout")}
+          onPress={handlePressLogout}
           activeOpacity={0.8}
         >
           <Text style={styles.logoutEmoji}>🚪</Text>

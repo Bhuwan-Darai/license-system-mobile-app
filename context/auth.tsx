@@ -1,5 +1,7 @@
 import api from "@/axios";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import { IS_DEVELOPMENT } from "@/constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
@@ -22,24 +24,27 @@ interface User {
   role: string;
 }
 
+interface Logout {
+  success: boolean;
+  message: string;
+}
+
 interface AuthContextType {
   status: AuthStatus;
   user: User | null;
   isLoading: boolean;
   tempPhone: string | null;
   sendOtp: (phone: string) => Promise<void>;
-  verifyOtp: (credentials:{otpCode: string,email:string}) => Promise<any>;
-  resendOtp: (email:string) => Promise<void>;
+  verifyOtp: (credentials: { otpCode: string; email: string }) => Promise<any>;
+  resendOtp: (email: string) => Promise<void>;
   continueAsGuest: () => void;
   signOut: () => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
-  login: (credentials: {
-    email: string;
-    password: string;
-  }) => Promise<any>;
+  login: (credentials: { email: string; password: string }) => Promise<any>;
   loginLoading: boolean;
   isAuthenticated: boolean;
+  refetch: () => void;
 }
 
 interface SignupCredentials {
@@ -60,22 +65,32 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("unauthenticated");
-  // const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tempPhone, setTempPhone] = useState<string | null>(null);
 
-  const queryClient = useQueryClient();
   const router = useRouter();
+
+  useEffect(() => {
+    if (userData) {
+      setStatus("authenticated");
+    }
+    if (!userData && status === "authenticated") {
+      refetch();
+    }
+  }, [userData, status]);
 
   const {
     data: user,
-    isLoading:userFetching,
+    isLoading: userFetching,
     refetch,
   } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
       try {
         const response = await api.get("/auth/me");
+        setStatus("authenticated");
+        setUserData(response.data);
         return response.data;
       } catch {
         return null;
@@ -88,17 +103,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Login Mutation
   const loginMutation = useMutation({
-    mutationFn: async (credentials: {email:string, password:string}) => {
-      console.log("credentials",credentials)
-      const data = await api.post("/auth/login/mobile", credentials);
-      if (data.success) {
+    mutationFn: async (credentials: { email: string; password: string }) => {
+      const data = await api.post("/auth/mobile/login", credentials);
+      if (data?.success) {
         await refetch();
         Alert.alert(data.message || "Login successful!");
-        router.push("/verify-otp")
+        if (IS_DEVELOPMENT) {
+          router.push("/(tabs)");
+          return;
+        }
+        router.push("/verify-otp");
       } else {
         Alert.alert(data.message || "Login failed.");
       }
-    }
+    },
   });
 
   // Simulate loading session from local storage on mount
@@ -134,41 +152,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const verifyOtp = async (credentials:{otpCode: string,email:string}): Promise<any> => {
+  const verifyOtp = async (credentials: {
+    otpCode: string;
+    email: string;
+  }): Promise<any> => {
     setIsLoading(true);
     const payload = {
-      email:credentials?.email,
-      otp:credentials?.otpCode
-    }
+      email: credentials?.email,
+      otp: credentials?.otpCode,
+    };
     try {
       // Simulate API call to verify OTP
-     const res =  await api.post("/auth/verify-otp/mobile", payload);
-     console.log("otp verify",res);
-     if (res?.success){
-       await refetch();
-       router.replace("/(tabs)")
-     }
-    }catch(error){
-      console.warn(error)
-      throw error;
+      const res = await api.post("/auth/verify-otp/mobile", payload);
+      console.log("otp verify", res);
+      if (res?.success) {
+        await refetch();
+        router.replace("/(tabs)");
       }
-     finally {
+    } catch (error) {
+      console.warn(error);
+      throw error;
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const resendOtp = async (email:string) => {
+  const resendOtp = async (email: string) => {
     setIsLoading(true);
     try {
       const payload = {
-        email:email,
-      }
-      // Simulate resending OTP
-      const res = await api.post("/auth/resend-otp/mobile", payload)
-      console.log("res", res);
-    }
-    catch(error) {
-       console.log("error",error)
+        email: email,
+      };
+      await api.post("/auth/resend-otp/mobile", payload);
+    } catch (error) {
     } finally {
       setIsLoading(false);
     }
@@ -182,8 +198,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const data: Logout = await api.post("/auth/logout");
       // setUser(null);
+      if (data?.success) {
+        await refetch();
+        await AsyncStorage.removeItem("auth_token");
+        router.replace("/login");
+      }
       setTempPhone(null);
       setStatus("unauthenticated");
     } finally {
@@ -199,15 +220,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         Email: email,
         Password: password,
       };
-      console.log("Sign-up payload in context:", payload);
-     const res =  await api.post("/auth/register", payload);
-     console.log("res context",res)
-      return res
-    } catch(error){
+      const res = await api.post("/auth/register", payload);
+      return res;
+    } catch (error) {
       setIsLoading(false);
-      console.log("error",error);
+      console.log("error", error);
       throw error;
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -242,7 +261,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         forgotPassword,
         login: loginMutation.mutateAsync,
         loginLoading: loginMutation.isPending,
-        isAuthenticated
+        isAuthenticated,
+        refetch,
       }}
     >
       {children}

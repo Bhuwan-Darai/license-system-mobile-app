@@ -72,8 +72,8 @@ export default function RootLayout() {
             {/* <Stack.Screen name="index" /> */}
             <Stack.Screen name="login" />
             <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="practice/mcq" />
-            <Stack.Screen name="more/blog" />
+            {/* <Stack.Screen name="practice/mcq" /> */}
+            {/* <Stack.Screen name="more/blog" />
             <Stack.Screen name="more/blogpost" />
             <Stack.Screen name="more/status" />
             <Stack.Screen name="more/signs" />
@@ -83,15 +83,15 @@ export default function RootLayout() {
             <Stack.Screen
               name="more/logout"
               options={{ presentation: "transparentModal" }}
-            />
-            <Stack.Screen
+            /> */}
+            {/* <Stack.Screen
               name="modal"
               options={{
                 presentation: "modal",
                 title: "Modal",
                 headerShown: true,
               }}
-            />
+            /> */}
           </Stack>
           <StatusBar style="auto" />
         </ThemeProvider>
