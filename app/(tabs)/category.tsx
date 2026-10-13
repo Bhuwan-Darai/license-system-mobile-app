@@ -1,5 +1,11 @@
-import React, { useState } from "react";
+import { BrandColors } from "@/constants/theme";
+import { useQueryVehicleCategories } from "@/hooks/category/useCategoryQuery";
+import { Card, EmptyState, PageHeader, Space } from "@/components/ui/kit";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useMemo, useState } from "react";
 import {
+  ActivityIndicator,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -7,184 +13,144 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { BrandColors } from "@/constants/theme";
+
+export interface VehicleCategory {
+  ID: number;
+  VehicleCategoryID: string;
+  Title: string;
+  Description: string;
+  Image: string;
+  CreatedAt: string;
+  CreatedBy: string;
+  UpdatedAt: string;
+  UpdatedBy?: string | null;
+}
 
 export default function CategoryScreen() {
   const [search, setSearch] = useState("");
-  const [expandedCode, setExpandedCode] = useState<string | null>("B");
+  const [expandedCode, setExpandedCode] = useState<string | null>(null);
 
-  const categories = [
-    { code: "A", name: "Motorcycle & Scooter", age: "16+", detail: "Fee ≈ NPR 1,500 · Valid 5 years · Requires written exam + trial test on motorcycle." },
-    { code: "B", name: "Car, Jeep & Van", age: "18+", detail: "Fee ≈ NPR 2,000 · Valid 5 years · Requires written exam + trial test on light car." },
-    { code: "C", name: "Tempo / Auto Rickshaw", age: "18+", detail: "Fee ≈ NPR 2,000 · Valid 5 years · Requires written exam + trial test." },
-    { code: "D", name: "Power Tiller / Tractor", age: "18+", detail: "Fee ≈ NPR 2,000 · Valid 5 years · Requires basic controls check." },
-    { code: "E", name: "Heavy Bus / Truck / Tipper", age: "21+", detail: "Fee ≈ NPR 3,000 · Valid 5 years · Requires Category B license held for 2+ years before applying." },
-    { code: "F", name: "Minibus / Mini Truck", age: "21+", detail: "Fee ≈ NPR 2,500 · Valid 5 years · Requires Category B held for 1+ years." },
-    { code: "K", name: "Scooter / Moped", age: "16+", detail: "Fee ≈ NPR 1,500 · Valid 5 years · Simplified trial layout." },
-  ];
+  const { categories, isLoading } = useQueryVehicleCategories();
 
-  const filteredCategories = categories.filter(
-    (c) =>
-      c.code.toLowerCase().includes(search.toLowerCase()) ||
-      c.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCategories = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return categories;
+    return categories.filter((category: VehicleCategory) =>
+      category.Title.toLowerCase().includes(query)
+    );
+  }, [categories, search]);
 
-  const toggleExpand = (code: string) => {
-    setExpandedCode(expandedCode === code ? null : code);
+  const toggleExpand = (id: string) => {
+    setExpandedCode((current) => (current === id ? null : id));
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>License categories</Text>
-      </View>
+      <PageHeader
+        title="License categories"
+        subtitle="Vehicle classes and what each one allows."
+      />
 
-      {/* Search */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchField}
-          placeholder="🔍 Search category"
+          placeholder="Search categories"
           placeholderTextColor={BrandColors.inkSoft}
           value={search}
           onChangeText={setSearch}
+          returnKeyType="search"
+          clearButtonMode="while-editing"
         />
       </View>
 
-      {/* List */}
-      <ScrollView contentContainerStyle={styles.listContent}>
-        {filteredCategories.map((item, index) => {
-          const isExpanded = expandedCode === item.code;
-          return (
-            <View key={index} style={styles.cardContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.card,
-                  isExpanded && styles.expandedCardBorder,
-                ]}
-                onPress={() => toggleExpand(item.code)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.badgeCircle}>
-                  <Text style={styles.badgeText}>{item.code}</Text>
-                </View>
-                <View style={styles.infoContainer}>
-                  <Text style={styles.cardName}>{item.name}</Text>
-                  <Text style={styles.cardAge}>Minimum age {item.age}</Text>
-                </View>
-                <Text style={styles.arrowText}>{isExpanded ? "▾" : "▸"}</Text>
-              </TouchableOpacity>
+      {isLoading ? (
+        <ActivityIndicator style={{ marginTop: 40 }} color={BrandColors.crimson} />
+      ) : filteredCategories.length === 0 ? (
+        <EmptyState title="No categories found" />
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {filteredCategories.map((item: VehicleCategory) => {
+            const isExpanded = expandedCode === item.VehicleCategoryID;
+            return (
+              <Card key={item.VehicleCategoryID} style={styles.card}>
+                <TouchableOpacity
+                  style={styles.cardHead}
+                  onPress={() => toggleExpand(item.VehicleCategoryID)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.thumb}>
+                    {item.Image ? (
+                      <Image
+                        source={{ uri: item.Image }}
+                        style={styles.vehicleImage}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <Text style={styles.thumbText}>{item.Title.charAt(0)}</Text>
+                    )}
+                  </View>
+                  <Text style={styles.cardName} numberOfLines={2}>
+                    {item.Title}
+                  </Text>
+                  <Ionicons
+                    name={isExpanded ? "chevron-up" : "chevron-down"}
+                    size={16}
+                    color={BrandColors.inkSoft}
+                  />
+                </TouchableOpacity>
 
-              {isExpanded && (
-                <View style={styles.detailContainer}>
-                  <Text style={styles.detailText}>{item.detail}</Text>
-                </View>
-              )}
-            </View>
-          );
-        })}
-      </ScrollView>
+                {isExpanded && item.Description ? (
+                  <Text style={styles.detailText}>{item.Description}</Text>
+                ) : null}
+              </Card>
+            );
+          })}
+        </ScrollView>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: BrandColors.paper,
-  },
-  header: {
-    paddingTop: 60,
-    paddingHorizontal: 18,
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: BrandColors.ink,
-  },
-  searchContainer: {
-    paddingHorizontal: 18,
-    marginBottom: 16,
-  },
+  container: { flex: 1, backgroundColor: BrandColors.paper },
+  searchContainer: { paddingHorizontal: Space.page, marginBottom: 14 },
   searchField: {
     width: "100%",
-    padding: 13,
-    borderRadius: 12,
-    borderWidth: 1.5,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: Space.radius,
+    borderWidth: StyleSheet.hairlineWidth * 2,
     borderColor: BrandColors.line,
-    fontSize: 14,
-    backgroundColor: "#ffffff",
+    fontSize: 15,
+    backgroundColor: BrandColors.card,
     color: BrandColors.ink,
-    fontWeight: "600",
   },
-  listContent: {
-    paddingHorizontal: 18,
-    paddingBottom: 32,
-    gap: 8,
-  },
-  cardContainer: {
-    marginBottom: 4,
-  },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderWidth: 1.5,
-    borderColor: BrandColors.line,
-    borderRadius: 16,
-    padding: 14,
-    gap: 12,
-  },
-  expandedCardBorder: {
-    borderColor: BrandColors.himalaya,
-  },
-  badgeCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: BrandColors.crimson,
+  listContent: { paddingHorizontal: Space.page, paddingBottom: 40, gap: 10 },
+  card: { padding: 12 },
+  cardHead: { flexDirection: "row", alignItems: "center", gap: 12 },
+  thumb: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: BrandColors.paperDim,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ffffff",
+    overflow: "hidden",
   },
-  badgeText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: BrandColors.crimson,
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  cardName: {
-    fontSize: 13.5,
-    fontWeight: "800",
-    color: BrandColors.ink,
-    marginBottom: 2,
-  },
-  cardAge: {
-    fontSize: 11.5,
-    color: BrandColors.inkSoft,
-    fontWeight: "600",
-  },
-  arrowText: {
-    fontSize: 16,
-    color: BrandColors.inkSoft,
-    fontWeight: "800",
-  },
-  detailContainer: {
-    backgroundColor: BrandColors.paperDim,
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 4,
-    borderWidth: 1,
-    borderColor: BrandColors.line,
-  },
+  vehicleImage: { width: 40, height: 40 },
+  thumbText: { fontSize: 17, fontWeight: "700", color: BrandColors.crimson },
+  cardName: { flex: 1, fontSize: 15, fontWeight: "600", color: BrandColors.ink },
   detailText: {
-    fontSize: 12,
+    fontSize: 13.5,
     color: BrandColors.inkSoft,
-    lineHeight: 18,
-    fontWeight: "600",
+    lineHeight: 20,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth * 2,
+    borderTopColor: BrandColors.line,
   },
 });

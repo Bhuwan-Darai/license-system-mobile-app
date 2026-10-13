@@ -1,18 +1,19 @@
+import { useAuth } from "@/context/auth";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 // Required once, at module scope, for the Google OAuth redirect to resolve properly
@@ -47,6 +48,13 @@ export default function LoginScreen({
     androidClientId: "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",
     webClientId: "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
   });
+
+  const { isAuthenticated, refetch: refetchAuth } = useAuth();
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      refetchAuth();
+    }
+  }, [isAuthenticated]);
 
   React.useEffect(() => {
     if (response?.type === "success") {

@@ -1,6 +1,6 @@
 import { Tabs, Redirect } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { BrandColors } from '@/constants/theme';
@@ -34,16 +34,15 @@ export default function TabLayout() {
         tabBarInactiveTintColor: BrandColors.inkSoft,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
-          // borderTopWidth: 1,
+          backgroundColor: BrandColors.card,
+          borderTopWidth: StyleSheet.hairlineWidth * 2,
           borderTopColor: BrandColors.line,
-          // height: 64,
-          // paddingBottom: 8,
-          // paddingTop: 8,
+          elevation: 0,
+          shadowOpacity: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '700',
+          fontSize: 11,
+          fontWeight: '600',
         },
       }}>
       <Tabs.Screen
@@ -67,7 +66,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="category"
         options={{
-          title: 'Category',
+          title: 'Categories',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons size={22} name={focused ? "list" : "list-outline"} color={color} />
           ),
@@ -79,6 +78,15 @@ export default function TabLayout() {
           title: 'News',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons size={22} name={focused ? "newspaper" : "newspaper-outline"} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="service"
+        options={{
+          title: 'Service',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={22} name={focused ? "construct" : "construct-outline"} color={color} />
           ),
         }}
       />
