@@ -21,8 +21,8 @@ export const useQueryTrafficSigns = (
   const { data, isLoading, error } = useQuery({
     queryKey: ["traffic-signs"],
     queryFn: async () => {
-      const res = await api.get("/traffic-signal", {
-        params: { page, pageSize, search },
+      const res = await api.get("/mobile/traffic-signals", {
+        params: { page, limit: pageSize, search },
       });
       return res.data;
     },

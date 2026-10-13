@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     flexDirection: "row", // ← horizontal layout
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 12,
     marginBottom: 14,
     overflow: "hidden",
     elevation: 3,

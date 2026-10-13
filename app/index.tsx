@@ -1,16 +1,14 @@
+import Splash from "@/components/ui/Loading";
 import { useAuth } from "@/context/auth";
 import { Redirect } from "expo-router";
-import { useEffect } from "react";
 
 export default function Index() {
-  const { refetch } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  const { isAuthenticated, refetch: refetchAuth } = useAuth();
-  useEffect(() => {
-    if (isAuthenticated) {
-      refetchAuth();
-    }
-  }, [isAuthenticated]);
+  // Wait for the session check (/auth/me) before deciding where to go.
+  if (isLoading) {
+    return <Splash />;
+  }
 
-  return <Redirect href="/login" />;
+  return <Redirect href={isAuthenticated ? "/(tabs)" : "/login"} />;
 }

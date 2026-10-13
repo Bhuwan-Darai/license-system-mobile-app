@@ -21,8 +21,8 @@ export const useQueryVehicleCategories = (
   const { data, isLoading, error } = useQuery({
     queryKey: ["vehicle-categories"],
     queryFn: async () => {
-      const res = await api.get("/vehicle-category", {
-        params: { page, pageSize, search },
+      const res = await api.get("/mobile/vehicle-categories", {
+        params: { page, limit: pageSize, search },
       });
       console.log("vehicle categories", res);
       return res.data;

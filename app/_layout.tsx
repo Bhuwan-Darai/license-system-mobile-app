@@ -13,6 +13,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useEffect, useState } from "react";
 
 import Splash from "@/components/ui/Loading";
+import PushRegistration from "@/components/PushRegistration";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 SplashScreen.preventAutoHideAsync();
@@ -62,14 +63,15 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <PushRegistration />
         <ThemeProvider
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
           <Stack
             screenOptions={{ headerShown: false }}
-            initialRouteName="login"
+            initialRouteName="index"
           >
-            {/* <Stack.Screen name="index" /> */}
+            <Stack.Screen name="index" />
             <Stack.Screen name="login" />
             <Stack.Screen name="(tabs)" />
             {/* <Stack.Screen name="practice/mcq" /> */}

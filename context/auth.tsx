@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
+import { unregisterDevice } from "@/utils/push";
 
 export type AuthStatus =
   | "unauthenticated"
@@ -93,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUserData(response.data);
         return response.data;
       } catch {
+        setUserData(null);
         return null;
       }
     },
@@ -119,20 +121,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
-  // Simulate loading session from local storage on mount
+  // The session check is the first /auth/me request; hold the app in the
+  // loading state until it finishes so a reload doesn't flash the login screen.
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        await refetch();
-        setStatus("unauthenticated");
-      } catch (e) {
-        console.error("Failed to load auth state", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkSession();
-  }, []);
+    if (!userFetching) {
+      setIsLoading(false);
+    }
+  }, [userFetching]);
 
   const sendOtp = async (phone: string) => {
     setIsLoading(true);
@@ -163,7 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     try {
       // Simulate API call to verify OTP
-      const res = await api.post("/auth/verify-otp/mobile", payload);
+      const res = await api.post("/auth/mobile/verify-otp", payload);
       console.log("otp verify", res);
       if (res?.success) {
         await refetch();
@@ -183,7 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const payload = {
         email: email,
       };
-      await api.post("/auth/resend-otp/mobile", payload);
+      await api.post("/auth/mobile/resend-otp", payload);
     } catch (error) {
     } finally {
       setIsLoading(false);
@@ -198,6 +193,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setIsLoading(true);
     try {
+      // stop pushes to this phone while the session cookie is still valid
+      await unregisterDevice().catch(() => {});
       const data: Logout = await api.post("/auth/logout");
       // setUser(null);
       if (data?.success) {

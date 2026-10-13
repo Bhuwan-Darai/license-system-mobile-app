@@ -1,11 +1,14 @@
 import axios from "axios";
 import { API_URL } from "@/constants";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const api = axios.create({
     baseURL: `${API_URL}/api/v1`,
     timeout: 10000,
+    // On web the browser stores the httpOnly auth cookie and must send it
+    // itself, otherwise the session is lost on every reload.
+    withCredentials: Platform.OS === "web",
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -17,7 +20,8 @@ api.interceptors.request.use(
     async (config) => {
         const token = await AsyncStorage.getItem("auth_token");
 
-        if (token) {
+        // Browsers forbid setting the Cookie header; they send the cookie themselves.
+        if (token && Platform.OS !== "web") {
             config.headers = config.headers || {};
             config.headers["Cookie"] = `auth_token=${token}`;
         }
@@ -93,7 +97,10 @@ api.interceptors.response.use(
                 url === "/auth/login" ||
                 url === "/auth/me";
 
-            if (!isAuthRequest) {
+            // Not being signed in on app start is expected, so /auth/me stays silent.
+            if (url === "/auth/me") {
+                // nothing to show
+            } else if (!isAuthRequest) {
                 await AsyncStorage.removeItem("auth_token");
 
                 Alert.alert(

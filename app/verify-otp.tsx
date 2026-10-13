@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   otpInput: {
     flex: 1,
     height: 56,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: "#e2e2e5",
     borderRadius: 12,
     fontSize: 20,
