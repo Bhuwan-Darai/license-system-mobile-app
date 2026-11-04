@@ -9,6 +9,8 @@ export default function MoreLayout() {
       <Stack.Screen name="signs" options={{ title: "Traffic symbols" }} />
       <Stack.Screen name="ishihara" options={{ title: "Ishihara plates" }} />
       <Stack.Screen name="status" options={{ title: "License status" }} />
+      <Stack.Screen name="register-license" options={{ title: "Apply for a new license" }} />
+      <Stack.Screen name="inquiry" options={{ title: "Send an inquiry" }} />
       <Stack.Screen name="emergency" options={{ title: "Emergency numbers" }} />
       <Stack.Screen name="busfare" options={{ title: "Bus fare list" }} />
       <Stack.Screen name="driving-schools" options={{ title: "Driving schools" }} />

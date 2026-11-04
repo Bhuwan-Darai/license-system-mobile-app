@@ -4,6 +4,7 @@ import {
   Alert,
   AppState,
   BackHandler,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -329,6 +330,9 @@ export default function Quiz() {
               {i + 1}. {q.title}
             </Text>
             {q.subtitle ? <Text style={styles.qSub}>{q.subtitle}</Text> : null}
+            {q.image_url ? (
+              <Image source={{ uri: q.image_url }} style={styles.qImage} resizeMode="contain" />
+            ) : null}
             {q.options.map((o) => {
               const selected = answers[q.question_id] === o.option_id;
               return (
@@ -398,6 +402,7 @@ const styles = StyleSheet.create({
   },
   qText: { fontSize: 14, fontWeight: "700", color: BrandColors.ink, lineHeight: 20 },
   qSub: { fontSize: 12, color: BrandColors.inkSoft },
+  qImage: { width: "100%", height: 180, borderRadius: 10, backgroundColor: BrandColors.paperDim, marginVertical: 8 },
   option: {
     flexDirection: "row",
     alignItems: "center",

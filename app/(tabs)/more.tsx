@@ -9,6 +9,13 @@ type Item = {label: string; route: string};
 
 const SECTIONS: {title: string; items: Item[]}[] = [
     {
+        title: "Services",
+        items: [
+            {label: "Apply for a new license", route: "/more/register-license"},
+            {label: "Send an inquiry", route: "/more/inquiry"},
+        ],
+    },
+    {
         title: "Learn",
         items: [
             {label: "Blog and guides", route: "/more/blog"},
