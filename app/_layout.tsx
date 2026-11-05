@@ -9,7 +9,9 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { AuthProvider } from "@/context/auth";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useScheme } from "@/hooks/use-theme";
+import { useThemeStore } from "@/store/theme";
+import { DarkColors, LightColors } from "@/constants/theme";
 import { useEffect, useState } from "react";
 
 import Splash from "@/components/ui/Loading";
@@ -25,7 +27,8 @@ export const unstable_settings = {
 export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
 
-  const colorScheme = useColorScheme();
+  const colorScheme = useScheme();
+  const themeReady = useThemeStore((s) => s.hydrated);
 
   useEffect(() => {
     async function doAsyncStuff() {
@@ -47,7 +50,7 @@ export default function RootLayout() {
     }
   }, [isReady]);
 
-  if (!isReady) {
+  if (!isReady || !themeReady) {
     return <Splash />;
   }
 
@@ -68,7 +71,12 @@ export default function RootLayout() {
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
           <Stack
-            screenOptions={{ headerShown: false }}
+            screenOptions={{
+              headerShown: false,
+              contentStyle: {
+                backgroundColor: (colorScheme === "dark" ? DarkColors : LightColors).paper,
+              },
+            }}
             initialRouteName="index"
           >
             <Stack.Screen name="index" />
@@ -95,7 +103,7 @@ export default function RootLayout() {
               }}
             /> */}
           </Stack>
-          <StatusBar style="auto" />
+          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>

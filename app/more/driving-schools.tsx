@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useMemo, useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -11,13 +11,14 @@ import {
   View,
 } from "react-native";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import {
   DrivingSchool,
   LocationState,
   resolveLocation,
   useQueryDrivingSchools,
 } from "@/hooks/mobile/useDrivingSchools";
+import { useColors } from "@/hooks/use-theme";
 
 const openMap = (s: DrivingSchool) => {
   const label = encodeURIComponent(s.name);
@@ -33,6 +34,8 @@ const openMap = (s: DrivingSchool) => {
 };
 
 export default function DrivingSchools() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const [location, setLocation] = useState<LocationState>({ status: "loading" });
 
   const locate = useCallback(async () => {
@@ -150,7 +153,7 @@ export default function DrivingSchools() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18, gap: 10 },
   center: {

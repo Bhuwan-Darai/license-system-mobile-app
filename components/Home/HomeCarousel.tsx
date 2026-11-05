@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import {
   Image,
   Linking,
@@ -12,8 +12,9 @@ import {
   View,
 } from "react-native";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useQueryCarousels } from "@/hooks/mobile/useMobileContent";
+import { useColors } from "@/hooks/use-theme";
 
 const SIDE_PADDING = 20; // matches the home screen's horizontal padding
 const AUTO_SLIDE_MS = 4000;
@@ -21,6 +22,8 @@ const HEIGHT = 160;
 
 // Slides the admin marked as displayed, auto-advancing, with page dots.
 export default function HomeCarousel() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const { width: screenWidth } = useWindowDimensions();
   const width = screenWidth - SIDE_PADDING * 2;
   const { data } = useQueryCarousels();
@@ -100,7 +103,7 @@ export default function HomeCarousel() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   wrap: { marginBottom: 20 },
   slide: {
     height: HEIGHT,

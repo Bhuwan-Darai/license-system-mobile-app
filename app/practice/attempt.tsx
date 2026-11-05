@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useQueryPracticeAttempt } from "@/hooks/practice/usePractice";
+import { useColors } from "@/hooks/use-theme";
 
 export default function PracticeAttempt() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data, isLoading } = useQueryPracticeAttempt(id ?? null);
 
@@ -52,6 +55,8 @@ export default function PracticeAttempt() {
 }
 
 function Stat({ label, value, color }: { label: string; value: number; color: string }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <View style={styles.stat}>
       <Text style={[styles.statNum, { color }]}>{value}</Text>
@@ -60,7 +65,7 @@ function Stat({ label, value, color }: { label: string; value: number; color: st
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18, gap: 10, paddingBottom: 32 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: BrandColors.paper },

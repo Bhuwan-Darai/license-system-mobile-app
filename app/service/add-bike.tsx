@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Alert, ScrollView, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { Field, PrimaryButton, parseNum } from "@/components/Service/form";
 import { useBikeStore } from "@/hooks/service/useBikeStore";
+import { useColors } from "@/hooks/use-theme";
 
 export default function AddBike() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const addBike = useBikeStore((s) => s.addBike);
 
@@ -65,7 +68,7 @@ export default function AddBike() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18 },
 });

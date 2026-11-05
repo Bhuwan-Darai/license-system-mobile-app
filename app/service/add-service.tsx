@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActionSheetIOS,
   Alert,
@@ -14,9 +14,10 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Directory, File, Paths } from "expo-file-system";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { Field, PrimaryButton, isValidDate, parseNum, todayISO } from "@/components/Service/form";
 import { useBikeStore } from "@/hooks/service/useBikeStore";
+import { useColors } from "@/hooks/use-theme";
 
 // Picker results live in the cache directory, which the OS may clear, so the
 // bill is copied somewhere permanent before its URI is stored.
@@ -30,6 +31,8 @@ function persistBill(uri: string): string {
 }
 
 export default function AddService() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const { bikes, activeBikeId, addServiceRecord } = useBikeStore();
   const bike = bikes.find((b) => b.id === activeBikeId);
@@ -193,7 +196,7 @@ export default function AddService() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18, paddingBottom: 40 },
   note: { textAlign: "center", marginTop: 40, color: BrandColors.inkSoft },

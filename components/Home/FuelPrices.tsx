@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { ListGroup, SectionHeader } from "@/components/ui/kit";
 import { useQueryFuelPrices } from "@/hooks/mobile/useFuelPrices";
+import { useColors } from "@/hooks/use-theme";
 
 const formatPrice = (n: number) =>
   `Rs ${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
@@ -18,6 +19,8 @@ const formatDate = (iso: string) => {
 // Today's fuel prices for Kathmandu, from Nepal Oil Corporation.
 // Renders nothing while loading or if the feed is unreachable.
 export default function FuelPrices() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const { data } = useQueryFuelPrices();
   if (!data || data.length === 0) return null;
 
@@ -49,7 +52,7 @@ export default function FuelPrices() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   wrap: { marginBottom: 26 },
   row: {
     flexDirection: "row",

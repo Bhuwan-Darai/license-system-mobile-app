@@ -1,17 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useMemo, useEffect } from "react";
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import AppHeader from "@/components/ui/AppHeader";
 import { Card, EmptyState, Space, Tag } from "@/components/ui/kit";
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useQueryNews, useQueryNotifications } from "@/hooks/mobile/useMobileContent";
 import { useNotificationSeen } from "@/hooks/notifications/useNotificationSeen";
+import { useColors } from "@/hooks/use-theme";
 
 const tagLabel = (tag: string) => tag.charAt(0) + tag.slice(1).toLowerCase();
 
 // Recent news and notices, the same items push notifications are sent for.
 export default function Notifications() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const news = useQueryNews(undefined, 20);
   const sent = useQueryNotifications(20);
@@ -102,7 +105,7 @@ export default function Notifications() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   list: { paddingHorizontal: Space.page, paddingBottom: 40, gap: 10 },
   newCard: { borderLeftWidth: 3, borderLeftColor: BrandColors.crimson },

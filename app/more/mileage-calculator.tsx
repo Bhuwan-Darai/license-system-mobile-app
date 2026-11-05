@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { Field, fmt, parseNum } from "@/components/Service/form";
+import { useColors } from "@/hooks/use-theme";
 
 // Quick one-off calculator: distance travelled and fuel used -> mileage.
 export default function MileageCalculator() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const [distance, setDistance] = useState("");
   const [liters, setLiters] = useState("");
   const [price, setPrice] = useState("");
@@ -68,7 +71,7 @@ export default function MileageCalculator() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18 },
   result: {

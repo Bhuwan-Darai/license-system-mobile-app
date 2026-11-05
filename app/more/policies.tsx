@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { EmptyState, ListGroup, ListRow, Space } from "@/components/ui/kit";
 import { useQueryPolicySections } from "@/hooks/mobile/usePolicies";
+import { useColors } from "@/hooks/use-theme";
 
 export default function Policies() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const { data, isLoading, error } = useQueryPolicySections();
 
@@ -51,7 +54,7 @@ export default function Policies() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: Space.page, paddingTop: 8 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: BrandColors.paper },

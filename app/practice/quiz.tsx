@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { Stack, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import {
   PracticeResult,
   PracticeSession,
@@ -22,6 +22,7 @@ import {
   useStartPractice,
   useSubmitPractice,
 } from "@/hooks/practice/usePractice";
+import { useColors } from "@/hooks/use-theme";
 
 const formatTime = (totalSeconds: number) => {
   const h = Math.floor(totalSeconds / 3600);
@@ -33,6 +34,8 @@ const formatTime = (totalSeconds: number) => {
 };
 
 export default function Quiz() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const navigation = useNavigation();
   const { bankId, examId, title } = useLocalSearchParams<{
@@ -367,7 +370,7 @@ export default function Quiz() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18, gap: 12, paddingBottom: 40 },
   center: {

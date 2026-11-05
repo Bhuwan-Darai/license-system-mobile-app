@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-export const BrandColors = {
+export const LightColors = {
   paper: '#FBF6EC',
   paperDim: '#F3ECDC',
   ink: '#221C1A',
@@ -15,27 +15,49 @@ export const BrandColors = {
   card: '#FFFFFF',
 };
 
+export type ThemeColors = typeof LightColors;
+
+// Dark palette: slate primary, near-black surface, the logo red as the accent.
+// The semantic colours (saffron, forest) keep their light-mode hue, a bit deeper.
+export const DarkColors: ThemeColors = {
+  paper: '#11151C',
+  paperDim: '#181D26',
+  ink: '#E2E8F0',
+  inkSoft: '#94A3B8',
+  crimson: '#C41E3A',
+  crimsonDark: '#9A1730',
+  himalaya: '#94A3B8',
+  himalayaLight: '#B3BFCE',
+  saffron: '#CF8F2E',
+  forest: '#1F7443',
+  line: '#262D39',
+  card: '#1A202A',
+};
+
+// Light palette for code that cannot use a hook. Components should call
+// useColors() so they follow the appearance setting.
+export const BrandColors = LightColors;
+
 export const Colors = {
   light: {
-    text: BrandColors.ink,
-    background: BrandColors.paper,
-    tint: BrandColors.crimson,
-    icon: BrandColors.inkSoft,
-    tabIconDefault: BrandColors.inkSoft,
-    tabIconSelected: BrandColors.crimson,
-    border: BrandColors.line,
-    card: BrandColors.card,
+    text: LightColors.ink,
+    background: LightColors.paper,
+    tint: LightColors.crimson,
+    icon: LightColors.inkSoft,
+    tabIconDefault: LightColors.inkSoft,
+    tabIconSelected: LightColors.crimson,
+    border: LightColors.line,
+    card: LightColors.card,
   },
   dark: {
-    // Keep a beautiful dark-mode version aligned with ink theme
-    text: '#F3ECDC',
-    background: '#141110',
-    tint: '#E8A33D',
-    icon: '#8A8074',
-    tabIconDefault: '#8A8074',
-    tabIconSelected: '#E8A33D',
-    border: '#2A2422',
-    card: '#221C1A',
+    text: DarkColors.ink,
+    background: DarkColors.paper,
+    tint: DarkColors.crimson,
+    icon: DarkColors.inkSoft,
+    tabIconDefault: DarkColors.inkSoft,
+    tabIconSelected: DarkColors.crimson,
+    border: DarkColors.line,
+    card: DarkColors.card,
   },
 };
 

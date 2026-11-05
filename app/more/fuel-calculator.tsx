@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { Field, fmt, parseNum } from "@/components/Service/form";
 import { useQueryFuelPrices } from "@/hooks/mobile/useFuelPrices";
 import { computeMileage, useBikeStore } from "@/hooks/service/useBikeStore";
+import { useColors } from "@/hooks/use-theme";
 
 // Trip planner: distance + mileage + price -> litres and cost.
 // Mileage and price are prefilled from the user's bike and today's NOC petrol price.
 export default function FuelCalculator() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const { bikes, activeBikeId, fuelEntries } = useBikeStore();
   const bike = bikes.find((b) => b.id === activeBikeId) ?? bikes[0];
   const average = bike
@@ -84,7 +87,7 @@ export default function FuelCalculator() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18 },
   result: {

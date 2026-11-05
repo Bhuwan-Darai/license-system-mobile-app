@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import NotificationBell from "./NotificationBell";
+import { useColors } from "@/hooks/use-theme";
 
 interface Props {
   title: string;
@@ -30,6 +31,8 @@ export default function AppHeader({
   right,
   bell = true,
 }: Props) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -74,7 +77,7 @@ export default function AppHeader({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   wrap: {
     backgroundColor: BrandColors.paper,
     paddingBottom: 10,

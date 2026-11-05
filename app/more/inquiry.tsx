@@ -1,17 +1,20 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useAuth } from "@/context/auth";
 import { Chip, Space } from "@/components/ui/kit";
 import { Field, PrimaryButton } from "@/components/Service/form";
 import { HELP_TYPES, useSendInquiry } from "@/hooks/mobile/useApplication";
+import { useColors } from "@/hooks/use-theme";
 
 const PHONE = /^\+?[0-9][0-9 -]{6,18}[0-9]$/;
 const EMAIL = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 
 export default function Inquiry() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const { user } = useAuth();
   const send = useSendInquiry();
@@ -77,7 +80,7 @@ export default function Inquiry() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: Space.page, paddingBottom: 40 },
   intro: { fontSize: 13, color: BrandColors.inkSoft, marginBottom: 16 },

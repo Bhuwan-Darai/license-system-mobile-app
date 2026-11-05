@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,10 +10,13 @@ import {
 } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { PracticeSet, useQueryPracticeSets } from "@/hooks/practice/usePractice";
+import { useColors } from "@/hooks/use-theme";
 
 export default function MCQ() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const { category, categoryTitle } = useLocalSearchParams<{
     category?: string;
@@ -80,7 +83,7 @@ export default function MCQ() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18, gap: 10 },
   center: {

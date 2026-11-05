@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -9,11 +9,12 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import {
   useQueryPracticeReport,
   type PracticeReportRow,
 } from "@/hooks/practice/usePractice";
+import { useColors } from "@/hooks/use-theme";
 
 const formatDate = (iso?: string) =>
   iso
@@ -27,6 +28,8 @@ const formatDate = (iso?: string) =>
 const formatScore = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)}%`;
 
 export default function PracticeHistory() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const latest = useQueryPracticeReport("latest", 50);
   const highest = useQueryPracticeReport("highest", 5);
@@ -104,6 +107,8 @@ function ScoreCard({
   color: string;
   onPress: (id: string) => void;
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <TouchableOpacity
       style={[styles.scoreCard, { borderColor: color }]}
@@ -122,7 +127,7 @@ function ScoreCard({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18, gap: 10, paddingBottom: 32 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: BrandColors.paper },

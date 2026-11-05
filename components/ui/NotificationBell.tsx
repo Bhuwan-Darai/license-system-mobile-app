@@ -1,15 +1,18 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useQueryNews } from "@/hooks/mobile/useMobileContent";
 import { useNotificationSeen } from "@/hooks/notifications/useNotificationSeen";
+import { useColors } from "@/hooks/use-theme";
 
 // Bell shown in headers. Opens the notifications screen and shows how many
 // news items were published since it was last opened.
 export default function NotificationBell() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const { data } = useQueryNews(undefined, 20);
   const lastSeen = useNotificationSeen((s) => s.lastSeen);
@@ -36,7 +39,7 @@ export default function NotificationBell() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   btn: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
   badge: {
     position: "absolute",

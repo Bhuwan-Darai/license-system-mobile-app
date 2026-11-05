@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -10,8 +10,9 @@ import {
 } from "react-native";
 import RenderHtml from "react-native-render-html";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { EmptyState } from "@/components/ui/kit";
+import { useColors } from "@/hooks/use-theme";
 
 interface Props {
   isLoading: boolean;
@@ -36,6 +37,8 @@ export default function HtmlPage({
   emptyMessage,
   showTitle = true,
 }: Props) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const { width } = useWindowDimensions();
 
   if (isLoading) {
@@ -64,7 +67,7 @@ export default function HtmlPage({
             contentWidth={width - 40}
             source={{ html: page.content }}
             baseStyle={styles.body}
-            tagsStyles={htmlTags}
+            tagsStyles={htmlTags(BrandColors)}
           />
         </>
       ) : (
@@ -77,7 +80,7 @@ export default function HtmlPage({
   );
 }
 
-const htmlTags = {
+const htmlTags = (BrandColors: ThemeColors) => ({
   img: { borderRadius: 12 },
   p: { marginTop: 0, marginBottom: 12 },
   h2: { fontSize: 18, fontWeight: "700" as const, color: BrandColors.ink, marginTop: 8, marginBottom: 8 },
@@ -85,9 +88,9 @@ const htmlTags = {
   ul: { marginTop: 0, marginBottom: 12, paddingLeft: 4 },
   li: { marginBottom: 6 },
   a: { color: BrandColors.himalaya },
-};
+});
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 20, paddingBottom: 48, flexGrow: 1 },
   center: {

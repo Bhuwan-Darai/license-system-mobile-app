@@ -12,14 +12,17 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { fmt } from "@/components/Service/form";
 import { Card, EmptyState, PageHeader, Space } from "@/components/ui/kit";
 import { computeMileage, useBikeStore } from "@/hooks/service/useBikeStore";
+import { useColors } from "@/hooks/use-theme";
 
 type Tab = "fuel" | "service";
 
 export default function ServiceScreen() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const {
     bikes,
@@ -241,6 +244,8 @@ export default function ServiceScreen() {
 }
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <Card style={styles.stat}>
       <Text style={styles.statLabel}>{label}</Text>
@@ -250,7 +255,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { paddingHorizontal: Space.page, paddingBottom: 40 },
   link: { fontSize: 14, fontWeight: "600", color: BrandColors.himalaya },

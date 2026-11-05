@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import RenderHtml from "react-native-render-html";
 import { Stack, useLocalSearchParams } from "expo-router";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useQueryBlog } from "@/hooks/mobile/useMobileContent";
+import { useColors } from "@/hooks/use-theme";
 
 export default function BlogPost() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: blog, isLoading, error } = useQueryBlog(id);
   const { width } = useWindowDimensions();
@@ -38,19 +41,19 @@ export default function BlogPost() {
         contentWidth={width - 36}
         source={{ html: blog.content ?? "" }}
         baseStyle={styles.body}
-        tagsStyles={htmlTags}
+        tagsStyles={htmlTags(BrandColors)}
       />
     </ScrollView>
   );
 }
 
-const htmlTags = {
+const htmlTags = (BrandColors: ThemeColors) => ({
   img: { borderRadius: 12 },
   li: { marginBottom: 4 },
   a: { color: BrandColors.himalaya },
-};
+});
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18, gap: 10, paddingBottom: 40 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: BrandColors.paper },

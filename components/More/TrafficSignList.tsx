@@ -1,5 +1,6 @@
+import { type ThemeColors } from "@/constants/theme";
 // components/TrafficSignsList.tsx
-import React, { useCallback, useState } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import {
     ActivityIndicator,
     Dimensions,
@@ -10,6 +11,7 @@ import {
     Text,
     View,
 } from "react-native";
+import { useColors } from "@/hooks/use-theme";
 
 export interface TrafficSignalCategory {
   title: string;
@@ -46,6 +48,8 @@ export default function TrafficSignsList({
   pageSize = 10,
   onLoadMore,
 }: Props) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -118,7 +122,7 @@ export default function TrafficSignsList({
     if (!loadingMore) return null;
     return (
       <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#2563eb" />
+        <ActivityIndicator size="small" color={BrandColors.crimson} />
         <Text style={styles.footerText}>Loading more…</Text>
       </View>
     );
@@ -138,7 +142,7 @@ export default function TrafficSignsList({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   list: {
     padding: 16,
     paddingBottom: 40,
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     flexDirection: "row", // ← horizontal layout
-    backgroundColor: "#fff",
+    backgroundColor: BrandColors.card,
     borderRadius: 12,
     marginBottom: 14,
     overflow: "hidden",
@@ -159,7 +163,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: 110,
-    backgroundColor: "#f1f5f9",
+    backgroundColor: BrandColors.paperDim,
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
@@ -177,28 +181,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#0f172a",
+    color: BrandColors.ink,
     marginBottom: 2,
   },
   englishTitle: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#334155",
+    color: BrandColors.inkSoft,
     marginBottom: 6,
   },
   description: {
     fontSize: 13,
-    color: "#475569",
+    color: BrandColors.inkSoft,
     marginBottom: 2,
   },
   englishDescription: {
     fontSize: 12,
-    color: "#64748b",
+    color: BrandColors.inkSoft,
     marginBottom: 8,
   },
   badge: {
     alignSelf: "flex-start",
-    backgroundColor: "#dbeafe",
+    backgroundColor: BrandColors.paperDim,
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 20,
@@ -206,7 +210,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#1d4ed8",
+    color: BrandColors.himalaya,
   },
   footer: {
     paddingVertical: 20,
@@ -215,6 +219,6 @@ const styles = StyleSheet.create({
   footerText: {
     marginTop: 6,
     fontSize: 13,
-    color: "#64748b",
+    color: BrandColors.inkSoft,
   },
 });

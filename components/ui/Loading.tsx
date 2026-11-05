@@ -1,8 +1,11 @@
-import { BrandColors } from "@/constants/theme";
-import React from "react";
+import { type ThemeColors } from "@/constants/theme";
+import React, { useMemo } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useColors } from "@/hooks/use-theme";
 
 export default function Splash() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
@@ -26,7 +29,7 @@ export default function Splash() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: BrandColors.crimson,

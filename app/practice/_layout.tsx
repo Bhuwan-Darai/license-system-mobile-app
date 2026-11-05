@@ -1,9 +1,10 @@
 import { Stack } from "expo-router";
-import { stackScreenOptions } from "@/constants/navigation";
+import { useStackScreenOptions } from "@/constants/navigation";
 
 export default function PracticeLayout() {
+  const screenOptions = useStackScreenOptions();
   return (
-    <Stack screenOptions={stackScreenOptions}>
+    <Stack screenOptions={screenOptions}>
       <Stack.Screen name="mcq" options={{ title: "Question sets" }} />
       <Stack.Screen name="quiz" options={{ title: "Practice" }} />
       <Stack.Screen name="history" options={{ title: "My attempts" }} />

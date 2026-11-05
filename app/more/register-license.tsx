@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { Chip, Space } from "@/components/ui/kit";
 import { Field, PrimaryButton } from "@/components/Service/form";
 import {
@@ -23,6 +23,7 @@ import {
   useSubmitApplication,
   uploadPhoto,
 } from "@/hooks/mobile/useApplication";
+import { useColors } from "@/hooks/use-theme";
 
 const GENDERS = [
   { value: "MALE", label: "Male" },
@@ -74,6 +75,8 @@ function PhotoPicker({
   onChange: (p: Photo) => void;
   aspect: [number, number];
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const [busy, setBusy] = useState(false);
 
   const pick = async (source: "camera" | "library") => {
@@ -129,6 +132,8 @@ function PhotoPicker({
 }
 
 export default function RegisterLicense() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const mine = useQueryMyRegistration();
   const locations = useQueryLocations();
@@ -363,7 +368,7 @@ export default function RegisterLicense() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: BrandColors.paper },
   content: { padding: Space.page, paddingBottom: 48 },

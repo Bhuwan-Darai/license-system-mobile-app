@@ -13,10 +13,13 @@ import {
   View,
 } from "react-native";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useQuerySignalCategories, useQuerySignals } from "@/hooks/mobile/useMobileContent";
+import { useColors } from "@/hooks/use-theme";
 
 export default function Signs() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const [category, setCategory] = useState<string | undefined>();
   const [searchInput, setSearchInput] = useState(""); // what the user types
   const [search, setSearch] = useState(""); // debounced value used for the query
@@ -85,6 +88,8 @@ export default function Signs() {
 }
 
 function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -96,7 +101,7 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   search: {
     margin: 18,

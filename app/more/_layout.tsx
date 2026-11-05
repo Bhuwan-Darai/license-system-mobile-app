@@ -1,9 +1,10 @@
 import { Stack } from "expo-router";
-import { stackScreenOptions } from "@/constants/navigation";
+import { useStackScreenOptions } from "@/constants/navigation";
 
 export default function MoreLayout() {
+  const screenOptions = useStackScreenOptions();
   return (
-    <Stack screenOptions={stackScreenOptions}>
+    <Stack screenOptions={screenOptions}>
       <Stack.Screen name="blog" options={{ title: "Blog and guides" }} />
       <Stack.Screen name="blogpost" options={{ title: "Article" }} />
       <Stack.Screen name="signs" options={{ title: "Traffic symbols" }} />

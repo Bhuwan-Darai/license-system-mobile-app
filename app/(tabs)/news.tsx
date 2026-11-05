@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -11,9 +11,10 @@ import {
   View,
 } from "react-native";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { Card, Chip, EmptyState, PageHeader, Space, Tag } from "@/components/ui/kit";
 import { useQueryNews } from "@/hooks/mobile/useMobileContent";
+import { useColors } from "@/hooks/use-theme";
 
 const TAGS = [
   { value: undefined, label: "All" },
@@ -26,6 +27,8 @@ const TAGS = [
 const tagLabel = (tag: string) => tag.charAt(0) + tag.slice(1).toLowerCase();
 
 export default function NewsScreen() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const [tag, setTag] = useState<string | undefined>();
   const [openId, setOpenId] = useState<string | null>(null);
   const { data, isLoading, isRefetching, refetch, error } = useQueryNews(tag);
@@ -91,7 +94,7 @@ export default function NewsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   chips: { paddingHorizontal: Space.page, paddingBottom: 12, gap: 8 },
   list: { paddingHorizontal: Space.page, paddingBottom: 40, gap: 10 },

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,10 +10,13 @@ import {
   View,
 } from "react-native";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useQueryEmergencyNumbers } from "@/hooks/mobile/useMobileContent";
+import { useColors } from "@/hooks/use-theme";
 
 export default function Emergency() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const { data, isLoading, isRefetching, refetch, error } = useQueryEmergencyNumbers();
 
   if (isLoading) {
@@ -57,7 +60,7 @@ export default function Emergency() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { padding: 18, gap: 10 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: BrandColors.paper },

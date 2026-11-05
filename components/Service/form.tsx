@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   KeyboardTypeOptions,
   StyleSheet,
@@ -8,7 +8,8 @@ import {
   View,
 } from "react-native";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
+import { useColors } from "@/hooks/use-theme";
 
 export const todayISO = () => {
   const d = new Date();
@@ -47,6 +48,8 @@ export function Field({
   multiline?: boolean;
   hint?: string;
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -73,6 +76,8 @@ export function PrimaryButton({
   onPress: () => void;
   disabled?: boolean;
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <TouchableOpacity
       style={[styles.btn, disabled && { opacity: 0.5 }]}
@@ -85,7 +90,7 @@ export function PrimaryButton({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   field: { marginBottom: 14 },
   label: { fontSize: 12, fontWeight: "700", color: BrandColors.inkSoft, marginBottom: 6 },
   input: {

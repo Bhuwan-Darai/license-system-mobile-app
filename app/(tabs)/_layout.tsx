@@ -3,10 +3,14 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { BrandColors } from '@/constants/theme';
+
 import { useAuth } from '@/context/auth';
+import { DrawerProvider } from '@/components/Drawer/DrawerContext';
+import { useColors } from "@/hooks/use-theme";
 
 export default function TabLayout() {
+  const BrandColors = useColors();
+
   const { user, status, isLoading } = useAuth();
 
   // if (isLoading) {
@@ -28,6 +32,7 @@ export default function TabLayout() {
   }
 
   return (
+    <DrawerProvider>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: BrandColors.crimson,
@@ -91,14 +96,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="more"
+        name="profile"
         options={{
-          title: 'More',
+          title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons size={22} name={focused ? "menu" : "menu-outline"} color={color} />
+            <Ionicons size={22} name={focused ? "person" : "person-outline"} color={color} />
           ),
         }}
       />
     </Tabs>
+    </DrawerProvider>
   );
 }

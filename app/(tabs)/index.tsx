@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useRouter} from "expo-router";
-import {useAuth} from "@/context/auth";
-import {BrandColors} from "@/constants/theme";
+import {type ThemeColors} from "@/constants/theme";
+import HomeHeader from "@/components/Home/HomeHeader";
 import HomeCarousel from "@/components/Home/HomeCarousel";
 import FuelPrices from "@/components/Home/FuelPrices";
-import {Card, PageHeader, SectionHeader, Space, Tag} from "@/components/ui/kit";
+import {Card, SectionHeader, Space, Tag} from "@/components/ui/kit";
 import {useQueryNews} from "@/hooks/mobile/useMobileContent";
+import { useColors } from "@/hooks/use-theme";
 
 const QUICK_LINKS = [
     {label: "Practice MCQ", hint: "Question sets", route: "/(tabs)/practice"},
@@ -22,15 +23,16 @@ const QUICK_LINKS = [
 const tagLabel = (tag: string) => tag.charAt(0) + tag.slice(1).toLowerCase();
 
 export default function HomeDashboard() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
     const router = useRouter();
-    const {user} = useAuth();
 
     const {data: latestNews} = useQueryNews(undefined, 5);
     const news = latestNews ?? [];
 
     return (
         <View style={styles.container}>
-            <PageHeader title={user?.name || user?.email || "Home"} subtitle="Welcome back"/>
+            <HomeHeader/>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Carousel (shown only when the admin has displayed slides) */}
@@ -76,7 +78,7 @@ export default function HomeDashboard() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
     container: {flex: 1, backgroundColor: BrandColors.paper},
     content: {paddingHorizontal: Space.page, paddingBottom: 40},
     grid: {

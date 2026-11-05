@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,15 +10,18 @@ import {
   View,
 } from "react-native";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import {
   IshiharaCategory,
   useQueryIshiharaCategories,
   useQueryIshiharaPlates,
 } from "@/hooks/mobile/useMobileContent";
+import { useColors } from "@/hooks/use-theme";
 
 // Step 1: pick a category. Step 2: view that category's plates.
 export default function Ishihara() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const [selected, setSelected] = useState<IshiharaCategory | null>(null);
   const categories = useQueryIshiharaCategories();
   const plates = useQueryIshiharaPlates(selected?.ishihara_category_id);
@@ -89,7 +92,7 @@ export default function Ishihara() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   list: { padding: 18, gap: 12 },
   subtitle: { fontSize: 12.5, color: BrandColors.inkSoft, lineHeight: 18 },

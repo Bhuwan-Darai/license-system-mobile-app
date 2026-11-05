@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { EmptyState, ListGroup, ListRow, PageHeader, Space } from "@/components/ui/kit";
 import {
   PracticeCategory,
   useQueryPracticeCategories,
 } from "@/hooks/practice/usePractice";
+import { useColors } from "@/hooks/use-theme";
 
 export default function PracticeScreen() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const router = useRouter();
   const { data: categories, isLoading, error } = useQueryPracticeCategories();
 
@@ -53,7 +56,7 @@ export default function PracticeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   content: { paddingHorizontal: Space.page, paddingBottom: 40 },
 });

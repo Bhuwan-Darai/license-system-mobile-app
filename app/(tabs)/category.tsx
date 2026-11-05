@@ -1,4 +1,4 @@
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import { useQueryVehicleCategories } from "@/hooks/category/useCategoryQuery";
 import { Card, EmptyState, PageHeader, Space } from "@/components/ui/kit";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useColors } from "@/hooks/use-theme";
 
 export interface VehicleCategory {
   ID: number;
@@ -27,6 +28,8 @@ export interface VehicleCategory {
 }
 
 export default function CategoryScreen() {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const [search, setSearch] = useState("");
   const [expandedCode, setExpandedCode] = useState<string | null>(null);
 
@@ -115,7 +118,7 @@ export default function CategoryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: BrandColors.paper },
   searchContainer: { paddingHorizontal: Space.page, marginBottom: 14 },
   searchField: {

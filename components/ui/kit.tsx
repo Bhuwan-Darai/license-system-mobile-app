@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   StyleProp,
   StyleSheet,
@@ -10,8 +10,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { BrandColors } from "@/constants/theme";
+import { type ThemeColors } from "@/constants/theme";
 import AppHeader from "./AppHeader";
+import { useColors } from "@/hooks/use-theme";
 
 // Shared building blocks so every screen uses the same spacing, borders and
 // type scale. Colours come only from BrandColors.
@@ -35,6 +36,8 @@ export function SectionHeader({
   action?: string;
   onAction?: () => void;
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -56,6 +59,8 @@ export function Card({
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   if (onPress) {
     return (
       <TouchableOpacity
@@ -72,6 +77,8 @@ export function Card({
 
 /** A group of rows inside one bordered container, separated by hairlines. */
 export function ListGroup({ children }: { children: React.ReactNode }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   const items = React.Children.toArray(children).filter(Boolean);
   return (
     <View style={styles.group}>
@@ -99,6 +106,8 @@ export function ListRow({
   destructive?: boolean;
   chevron?: boolean;
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <TouchableOpacity
       activeOpacity={0.6}
@@ -129,6 +138,8 @@ export function Chip({
   active?: boolean;
   onPress?: () => void;
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -141,6 +152,8 @@ export function Chip({
 }
 
 export function Tag({ label }: { label: string }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <View style={styles.tag}>
       <Text style={styles.tagText}>{label}</Text>
@@ -159,6 +172,8 @@ export function EmptyState({
   actionLabel?: string;
   onAction?: () => void;
 }) {
+  const BrandColors = useColors(); const styles = useMemo(() => createStyles(BrandColors), [BrandColors]);
+
   return (
     <View style={styles.empty}>
       <Text style={styles.emptyTitle}>{title}</Text>
@@ -172,7 +187,7 @@ export function EmptyState({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (BrandColors: ThemeColors) => StyleSheet.create({
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
