@@ -137,19 +137,22 @@ export default function LoginScreen() {
     }
 
     try {
-      // TODO: Replace with your actual email/password login function from useAuth
-      // Example: await loginWithEmail(email.trim(), password);
-      // For now we just simulate success:
-    const res =  await login({email,password});
-    console.log("res",res);
+      const res = await login({ email, password });
+      console.log("res", res);
     } catch (err: any) {
-      Alert.alert(
-        "Error",
-        err.message ||
-          (language === "EN"
+      // The axios response interceptor already shows an Alert with the
+      // backend's actual message (e.g. role validation errors) for any
+      // API error response, so avoid showing a second, generic alert
+      // here — it would override the real message with something like
+      // "Request failed with status code 403".
+      if (!err?.response) {
+        Alert.alert(
+          "Error",
+          language === "EN"
             ? "Invalid email or password"
-            : "अवैध इमेल वा पासवर्ड"),
-      );
+            : "अवैध इमेल वा पासवर्ड",
+        );
+      }
     }
   };
 
@@ -556,7 +559,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 18,
-    fontWeight: "800",
+    fontWeight: "700",
     color: BrandColors.crimson,
     fontFamily: "System",
   },
@@ -565,7 +568,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "800",
+    fontWeight: "700",
     color: BrandColors.ink,
     marginBottom: 6,
     letterSpacing: -0.5,
@@ -614,7 +617,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.08,
     color: BrandColors.inkSoft,
@@ -623,7 +626,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: BrandColors.line,
     borderRadius: 12,
     paddingHorizontal: 14,
@@ -669,12 +672,12 @@ const styles = StyleSheet.create({
   otpInputBox: {
     width: 44,
     height: 48,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: BrandColors.line,
     borderRadius: 10,
     backgroundColor: "#ffffff",
     fontSize: 20,
-    fontWeight: "800",
+    fontWeight: "700",
     textAlign: "center",
     color: BrandColors.ink,
   },
@@ -712,7 +715,7 @@ const styles = StyleSheet.create({
   continueBtnText: {
     color: "#ffffff",
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "700",
   },
 
   bottomLinks: {
@@ -741,6 +744,6 @@ const styles = StyleSheet.create({
   signupLink: {
     fontSize: 13,
     color: BrandColors.crimson,
-    fontWeight: "800",
+    fontWeight: "700",
   },
 });

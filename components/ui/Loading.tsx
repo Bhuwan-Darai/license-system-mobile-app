@@ -50,12 +50,12 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 28,
-    fontWeight: "800",
+    fontWeight: "700",
     color: BrandColors.crimson,
   },
   appName: {
     fontSize: 26,
-    fontWeight: "800",
+    fontWeight: "700",
     color: "#ffffff",
     letterSpacing: -0.5,
     marginBottom: 8,

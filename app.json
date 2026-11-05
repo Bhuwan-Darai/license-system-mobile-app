@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mobile-app",
+    "name": "License yatra",
     "slug": "mobile-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -39,11 +39,32 @@
           }
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos so you can attach service bills.",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to use the camera so you can photograph service bills."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location to show driving schools near you."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "dd2ba6cb-be63-452b-b5af-1893c8915c11"
+      }
+    },
+    "owner": "bhuwan-darai"
   }
 }
